@@ -37,7 +37,7 @@ import Api from "utschool-js";
 
 let nodeUrl = 'wss://example.com'; // Url ноды Bitshares
 let accountName = 'example'; // Имя учетной записи
-let privateKey = 'examplePriv'; // Приватный ключ
+let privateKey = null; // Приватный ключ
 
 Api.init(nodeUrl, accountName, privateKey)
 .then((api)=>{
