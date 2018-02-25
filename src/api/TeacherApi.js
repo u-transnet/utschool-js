@@ -22,6 +22,9 @@ class TeacherApi{
      */
     _sendToken(lectureAccount, studentAccount, educationToken){
         return new Promise((resolve, reject)=>{
+            assert(this.account.privateKey !== null, `You must provide private key for executing this method`);
+
+
             Promise.all([
                 FetchChain("getAccount", lectureAccount),
                 FetchChain("getAccount", studentAccount),
@@ -254,6 +257,8 @@ class TeacherApi{
      */
     acceptApplication(lectureApplicationId){
         return new Promise((resolve, reject)=>{
+            assert(this.account.privateKey !== null, `You must provide private key for executing this method`);
+
             Promise.all([
                 FetchChain("getAccount", this.account.name),
                 FetchChain("getAsset", this.feeAsset)

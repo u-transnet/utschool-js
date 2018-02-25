@@ -651,6 +651,8 @@ var StudentApi = function () {
             var _this = this;
 
             return new Promise(function (resolve, reject) {
+                (0, _assert2.default)(_this.account.privateKey !== null, 'You must provide private key for executing this method');
+
                 Promise.all([(0, _bitsharesjs.FetchChain)("getAccount", lectureAccount), (0, _bitsharesjs.FetchChain)("getAccount", _this.account.name), (0, _bitsharesjs.FetchChain)("getAsset", _Configs.utSchoolTokenTicket), (0, _bitsharesjs.FetchChain)("getAsset", _this.feeAsset)]).then(function (res) {
                     var _res = _slicedToArray(res, 4),
                         cLectureAccount = _res[0],
@@ -1032,6 +1034,8 @@ var TeacherApi = function () {
             var _this = this;
 
             return new Promise(function (resolve, reject) {
+                (0, _assert2.default)(_this.account.privateKey !== null, 'You must provide private key for executing this method');
+
                 Promise.all([(0, _bitsharesjs.FetchChain)("getAccount", lectureAccount), (0, _bitsharesjs.FetchChain)("getAccount", studentAccount), (0, _bitsharesjs.FetchChain)("getAsset", educationToken), (0, _bitsharesjs.FetchChain)("getAsset", _this.feeAsset)]).then(function (res) {
                     var _res = _slicedToArray(res, 4),
                         cLectureAccount = _res[0],
@@ -1417,6 +1421,8 @@ var TeacherApi = function () {
             var _this2 = this;
 
             return new Promise(function (resolve, reject) {
+                (0, _assert2.default)(_this2.account.privateKey !== null, 'You must provide private key for executing this method');
+
                 Promise.all([(0, _bitsharesjs.FetchChain)("getAccount", _this2.account.name), (0, _bitsharesjs.FetchChain)("getAsset", _this2.feeAsset)]).then(function (res) {
                     var _res4 = _slicedToArray(res, 2),
                         teacherAccount = _res4[0],
@@ -2038,7 +2044,7 @@ var Account = function Account(account, privateKey) {
     _classCallCheck(this, Account);
 
     this.name = account;
-    this.privateKey = privateKey ? _bitsharesjs.PrivateKey.fromWif(privateKey) : '';
+    this.privateKey = privateKey ? _bitsharesjs.PrivateKey.fromWif(privateKey) : null;
 };
 
 exports.Account = Account;

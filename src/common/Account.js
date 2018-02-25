@@ -8,7 +8,7 @@ class Account{
 
     constructor(account, privateKey){
         this.name=account;
-        this.privateKey=privateKey?PrivateKey.fromWif(privateKey):'';
+        this.privateKey=privateKey?PrivateKey.fromWif(privateKey):null;
     }
 
 }
