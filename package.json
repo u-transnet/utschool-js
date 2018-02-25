@@ -11,6 +11,10 @@
     "school",
     "education"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/u-transnet/utschool-js"
+  },
   "author": "Ilya Shmelev",
   "license": "ISC",
   "devDependencies": {
