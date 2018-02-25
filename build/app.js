@@ -677,7 +677,7 @@ var StudentApi = function () {
                     });
 
                     tr.propose({
-                        fee_paying_account: cStudentAccount.get("id")
+                        fee_paying_account: cLectureAccount.get("id")
                     });
 
                     tr.set_required_fees().then(function () {
@@ -1423,25 +1423,29 @@ var TeacherApi = function () {
             return new Promise(function (resolve, reject) {
                 (0, _assert2.default)(_this2.account.privateKey !== null, 'You must provide private key for executing this method');
 
-                Promise.all([(0, _bitsharesjs.FetchChain)("getAccount", _this2.account.name), (0, _bitsharesjs.FetchChain)("getAsset", _this2.feeAsset)]).then(function (res) {
-                    var _res4 = _slicedToArray(res, 2),
-                        teacherAccount = _res4[0],
-                        feeAsset = _res4[1];
+                Promise.all([(0, _bitsharesjs.FetchChain)("getAccount", _this2.account.name), (0, _bitsharesjs.FetchChain)("getAsset", _this2.feeAsset), (0, _bitsharesjs.FetchChain)("getObject", lectureApplicationId)]).then(function (res) {
+                    var _res4 = _slicedToArray(res, 3),
+                        cTeacherAccount = _res4[0],
+                        cFeeAsset = _res4[1],
+                        cProposal = _res4[2];
 
-                    (0, _assert2.default)(teacherAccount !== null, 'Invalid teacher account ' + _this2.account.name);
-                    (0, _assert2.default)(feeAsset !== null, 'Invalid fee asset ' + _this2.feeAsset);
+                    (0, _assert2.default)(cTeacherAccount !== null, 'Invalid teacher account ' + _this2.account.name);
+                    (0, _assert2.default)(cFeeAsset !== null, 'Invalid fee asset ' + _this2.feeAsset);
+                    (0, _assert2.default)(cProposal !== null, 'Invalid proposal id ' + lectureApplicationId);
+
+                    var operations = cProposal.proposed_transaction.operations;
+                    var lectureId = operations[0][1].from;
 
                     var tr = new _bitsharesjs.TransactionBuilder();
-                    teacherAccount = teacherAccount.get('id');
 
                     tr.add_type_operation("proposal_update", {
                         fee: {
                             amount: 0,
-                            asset_id: feeAsset.get("id")
+                            asset_id: cFeeAsset.get("id")
                         },
-                        fee_paying_account: teacherAccount,
+                        fee_paying_account: lectureId,
                         proposal: lectureApplicationId,
-                        active_approvals_to_add: [teacherAccount]
+                        active_approvals_to_add: [cTeacherAccount.get('id')]
                     });
 
                     tr.set_required_fees().then(function () {

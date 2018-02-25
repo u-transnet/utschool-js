@@ -261,24 +261,28 @@ class TeacherApi{
 
             Promise.all([
                 FetchChain("getAccount", this.account.name),
-                FetchChain("getAsset", this.feeAsset)
+                FetchChain("getAsset", this.feeAsset),
+                FetchChain("getObject", lectureApplicationId)
             ]).then((res)=> {
-                let [teacherAccount, feeAsset] = res;
+                let [cTeacherAccount, cFeeAsset, cProposal] = res;
 
-                assert(teacherAccount !== null, `Invalid teacher account ${this.account.name}`);
-                assert(feeAsset !== null, `Invalid fee asset ${this.feeAsset}`);
+                assert(cTeacherAccount !== null, `Invalid teacher account ${this.account.name}`);
+                assert(cFeeAsset !== null, `Invalid fee asset ${this.feeAsset}`);
+                assert(cProposal !== null, `Invalid proposal id ${lectureApplicationId}`);
+
+                let operations = cProposal.proposed_transaction.operations;
+                let lectureId = operations[0][1].from;
 
                 let tr = new TransactionBuilder();
-                teacherAccount = teacherAccount.get('id');
 
                 tr.add_type_operation("proposal_update", {
                     fee: {
                         amount: 0,
-                        asset_id: feeAsset.get("id")
+                        asset_id: cFeeAsset.get("id")
                     },
-                    fee_paying_account: teacherAccount,
+                    fee_paying_account: lectureId,
                     proposal: lectureApplicationId,
-                    active_approvals_to_add: [teacherAccount],
+                    active_approvals_to_add: [cTeacherAccount.get('id')],
                 } );
 
                 tr.set_required_fees().then(() => {

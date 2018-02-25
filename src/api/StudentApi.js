@@ -49,7 +49,7 @@ class StudentApi{
                 } );
 
                 tr.propose({
-                    fee_paying_account: cStudentAccount.get("id"),
+                    fee_paying_account: cLectureAccount.get("id"),
                 });
 
                 tr.set_required_fees().then(() => {
