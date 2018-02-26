@@ -652,7 +652,6 @@ var StudentApi = function () {
                     });
 
                     tr.set_required_fees().then(function () {
-                        console.log(_this.account.name, _this.account.privateKey, _this.account.privateKey.toPublicKey().toPublicKeyString());
                         tr.add_signer(_this.account.privateKey, _this.account.privateKey.toPublicKey().toPublicKeyString());
                         tr.broadcast().then(function (resp) {
                             resolve(tr.serialize());
