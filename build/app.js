@@ -383,6 +383,7 @@ var Api = function () {
                         },
                         "registrar": chain_registrar.get("id"),
                         "referrer": chain_registrar.get("id"),
+                        "referrer_percent": 0,
                         "name": login,
                         "owner": {
                             "weight_threshold": 1,
@@ -406,10 +407,11 @@ var Api = function () {
                     });
                     tr.set_required_fees().then(function () {
                         console.log("serialized transaction:", tr.serialize());
-                        tr.broadcast();
-                        resolve(tr.serialize());
-                    });
-                });
+                        tr.broadcast().then(function (resp) {
+                            resolve(tr.serialize());
+                        }).catch(reject);
+                    }).catch(reject);
+                }).catch(reject);
             });
         }
     }]);
@@ -682,8 +684,9 @@ var StudentApi = function () {
 
                     tr.set_required_fees().then(function () {
                         tr.add_signer(_this.account.privateKey, _this.account.privateKey.toPublicKey().toPublicKeyString());
-                        tr.broadcast().catch(reject);
-                        resolve(tr.serialize());
+                        tr.broadcast().then(function (resp) {
+                            resolve(tr.serialize());
+                        }).catch(reject);
                     }).catch(reject);
                 }).catch(reject);
             });
@@ -1062,8 +1065,9 @@ var TeacherApi = function () {
 
                     tr.set_required_fees().then(function () {
                         tr.add_signer(_this.account.privateKey, _this.account.privateKey.toPublicKey().toPublicKeyString());
-                        tr.broadcast().catch(reject);
-                        resolve(tr.serialize());
+                        tr.broadcast().then(function (resp) {
+                            resolve(tr.serialize());
+                        }).catch(reject);
                     }).catch(reject);
                 }).catch(reject);
             });
@@ -1450,8 +1454,9 @@ var TeacherApi = function () {
 
                     tr.set_required_fees().then(function () {
                         tr.add_signer(_this2.account.privateKey, _this2.account.privateKey.toPublicKey().toPublicKeyString());
-                        tr.broadcast().catch(reject);
-                        resolve(tr.serialize());
+                        tr.broadcast().then(function (resp) {
+                            resolve(tr.serialize());
+                        }).catch(reject);
                     }).catch(reject);
                 }).catch(reject);
             });

@@ -52,8 +52,7 @@ class TeacherApi{
 
                 tr.set_required_fees().then(() => {
                     tr.add_signer(this.account.privateKey, this.account.privateKey.toPublicKey().toPublicKeyString());
-                    tr.broadcast().catch(reject);
-                    resolve(tr.serialize());
+                    tr.broadcast().then((resp)=>{resolve(tr.serialize())}).catch(reject);
                 }).catch(reject);
             }).catch(reject);
         })
@@ -287,8 +286,7 @@ class TeacherApi{
 
                 tr.set_required_fees().then(() => {
                     tr.add_signer(this.account.privateKey, this.account.privateKey.toPublicKey().toPublicKeyString());
-                    tr.broadcast().catch(reject);
-                    resolve(tr.serialize());
+                    tr.broadcast().then((resp)=>{resolve(tr.serialize())}).catch(reject);
                 }).catch(reject);
             }).catch(reject);
         })

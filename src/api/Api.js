@@ -86,6 +86,7 @@ class Api{
                     },
                     "registrar": chain_registrar.get("id"),
                     "referrer": chain_registrar.get("id"),
+                    "referrer_percent": 0,
                     "name": login,
                     "owner": {
                         "weight_threshold": 1,
@@ -109,10 +110,9 @@ class Api{
                 });
                 tr.set_required_fees().then(() => {
                     console.log("serialized transaction:", tr.serialize());
-                    tr.broadcast();
-                    resolve(tr.serialize());
-                });
-            });
+                    tr.broadcast().then((resp)=>{resolve(tr.serialize())}).catch(reject);
+                }).catch(reject);
+            }).catch(reject);
         });
     }
 }
