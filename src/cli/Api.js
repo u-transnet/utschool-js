@@ -51,8 +51,8 @@ class Api{
     static getPrograms(nodeUrl, login, password, privateKey, onResult){
         return SchoolApi.init(nodeUrl, login, privateKey).then((api)=>{
             if(!privateKey) {
-                privateKey = SchoolApi.generateKeys(login, password).pubKeys.active;
-                api.setPrivateKey(privateKey);
+                privateKey = SchoolApi.generateKeys(login, password).privKeys.active;
+                api.account.privateKey = privateKey;
             }
 
             return [

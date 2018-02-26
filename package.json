@@ -38,6 +38,7 @@
     "commander": "^2.14.1",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
-    "util": "^0.10.3"
+    "util": "^0.10.3",
+    "bs58": ""
   }
 }

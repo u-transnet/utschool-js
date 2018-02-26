@@ -3,16 +3,13 @@
  */
 
 import {PrivateKey} from "bitsharesjs";
+import { encode, decode } from 'bs58';
 
 class Account{
 
     constructor(account, privateKeyWif){
         this.name=account;
         this.privateKey = privateKeyWif?PrivateKey.fromWif(privateKeyWif):null;
-    }
-
-    setPrivateKey(privateKey){
-        this.privateKey=PrivateKey.fromSeed(privateKey)
     }
 
 }
