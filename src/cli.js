@@ -33,7 +33,6 @@ let onResult = (commandName, resp, isError)=>{
 };
 
 Api.getPrograms(Commander.url, Commander.login, Commander.password, Commander.privateKey, onResult).then((programs)=>{
-    //programs.push(Commander);
 
     programs.push(
         new Commander.Command('help')

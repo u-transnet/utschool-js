@@ -150,7 +150,6 @@ var onResult = function onResult(commandName, resp, isError) {
 };
 
 _Api2.default.getPrograms(_commander2.default.url, _commander2.default.login, _commander2.default.password, _commander2.default.privateKey, onResult).then(function (programs) {
-    //programs.push(Commander);
 
     programs.push(new _commander2.default.Command('help').action(function (commandName) {
         if (commandName !== 'help') return;
@@ -348,7 +347,7 @@ var Api = function () {
     _createClass(Api, [{
         key: "setPrivateKey",
         value: function setPrivateKey(privateKey) {
-            this.account.privateKey = privateKey;
+            this.account.setPrivateKey(privateKey);
         }
 
         /**
@@ -1669,7 +1668,10 @@ var Api = (_temp = _class = function () {
         key: 'getPrograms',
         value: function getPrograms(nodeUrl, login, password, privateKey, onResult) {
             return _Api.Api.init(nodeUrl, login, privateKey).then(function (api) {
-                if (!privateKey) privateKey = _Api.Api.generateKeys(login, password).pubKeys.active;
+                if (!privateKey) {
+                    privateKey = _Api.Api.generateKeys(login, password).pubKeys.active;
+                    api.setPrivateKey(privateKey);
+                }
 
                 return [].concat(_toConsumableArray((0, _ProgramsGenerator.generatePrograms)(Api.programs, api, onResult)), _toConsumableArray((0, _ProgramsGenerator.generatePrograms)(_StudentApi2.default.programs, api.studentApi, onResult)), _toConsumableArray((0, _ProgramsGenerator.generatePrograms)(_TeacherApi2.default.programs, api.teacherApi, onResult)));
             });
@@ -2013,18 +2015,31 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Account = undefined;
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by superpchelka on 23.02.18.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
 var _bitsharesjs = require("bitsharesjs");
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /**
-                                                                                                                                                           * Created by superpchelka on 23.02.18.
-                                                                                                                                                           */
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Account = function Account(account, privateKey) {
-    _classCallCheck(this, Account);
+var Account = function () {
+    function Account(account, privateKeyWif) {
+        _classCallCheck(this, Account);
 
-    this.name = account;
-    this.privateKey = privateKey ? _bitsharesjs.PrivateKey.fromWif(privateKey) : null;
-};
+        this.name = account;
+        this.privateKey = privateKeyWif ? _bitsharesjs.PrivateKey.fromWif(privateKeyWif) : null;
+    }
+
+    _createClass(Account, [{
+        key: "setPrivateKey",
+        value: function setPrivateKey(privateKey) {
+            this.privateKey = _bitsharesjs.PrivateKey.fromSeed(privateKey);
+        }
+    }]);
+
+    return Account;
+}();
 
 exports.Account = Account;
     });

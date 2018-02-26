@@ -6,9 +6,13 @@ import {PrivateKey} from "bitsharesjs";
 
 class Account{
 
-    constructor(account, privateKey){
+    constructor(account, privateKeyWif){
         this.name=account;
-        this.privateKey=privateKey?PrivateKey.fromWif(privateKey):null;
+        this.privateKey = privateKeyWif?PrivateKey.fromWif(privateKeyWif):null;
+    }
+
+    setPrivateKey(privateKey){
+        this.privateKey=PrivateKey.fromSeed(privateKey)
     }
 
 }

@@ -52,7 +52,7 @@ class Api{
      * @param privateKey - private key
      */
     setPrivateKey(privateKey){
-        this.account.privateKey = privateKey;
+        this.account.setPrivateKey(privateKey);
     }
 
     /**
