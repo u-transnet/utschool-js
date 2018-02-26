@@ -648,10 +648,11 @@ var StudentApi = function () {
                     });
 
                     tr.propose({
-                        fee_paying_account: cLectureAccount.get("id")
+                        fee_paying_account: cStudentAccount.get("id")
                     });
 
                     tr.set_required_fees().then(function () {
+                        console.log(_this.account.name, _this.account.privateKey, _this.account.privateKey.toPublicKey().toPublicKeyString());
                         tr.add_signer(_this.account.privateKey, _this.account.privateKey.toPublicKey().toPublicKeyString());
                         tr.broadcast().then(function (resp) {
                             resolve(tr.serialize());
@@ -1396,7 +1397,7 @@ var TeacherApi = function () {
             return new Promise(function (resolve, reject) {
                 (0, _assert2.default)(_this2.account.privateKey !== null, 'You must provide private key for executing this method');
 
-                Promise.all([(0, _bitsharesjs.FetchChain)("getAccount", _this2.account.name), (0, _bitsharesjs.FetchChain)("getAsset", _this2.feeAsset), (0, _bitsharesjs.FetchChain)("getObject", lectureApplicationId)]).then(function (res) {
+                Promise.all([(0, _bitsharesjs.FetchChain)("getAccount", _this2.account.name), (0, _bitsharesjs.FetchChain)("getAsset", _this2.feeAsset)]).then(function (res) {
                     var _res4 = _slicedToArray(res, 3),
                         cTeacherAccount = _res4[0],
                         cFeeAsset = _res4[1],
@@ -1404,10 +1405,6 @@ var TeacherApi = function () {
 
                     (0, _assert2.default)(cTeacherAccount !== null, 'Invalid teacher account ' + _this2.account.name);
                     (0, _assert2.default)(cFeeAsset !== null, 'Invalid fee asset ' + _this2.feeAsset);
-                    (0, _assert2.default)(cProposal !== null, 'Invalid proposal id ' + lectureApplicationId);
-
-                    var operations = cProposal.proposed_transaction.operations;
-                    var lectureId = operations[0][1].from;
 
                     var tr = new _bitsharesjs.TransactionBuilder();
 
@@ -1416,7 +1413,7 @@ var TeacherApi = function () {
                             amount: 0,
                             asset_id: cFeeAsset.get("id")
                         },
-                        fee_paying_account: lectureId,
+                        fee_paying_account: cTeacherAccount.get('id'),
                         proposal: lectureApplicationId,
                         active_approvals_to_add: [cTeacherAccount.get('id')]
                     });

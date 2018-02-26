@@ -261,16 +261,11 @@ class TeacherApi{
             Promise.all([
                 FetchChain("getAccount", this.account.name),
                 FetchChain("getAsset", this.feeAsset),
-                FetchChain("getObject", lectureApplicationId)
             ]).then((res)=> {
                 let [cTeacherAccount, cFeeAsset, cProposal] = res;
 
                 assert(cTeacherAccount !== null, `Invalid teacher account ${this.account.name}`);
                 assert(cFeeAsset !== null, `Invalid fee asset ${this.feeAsset}`);
-                assert(cProposal !== null, `Invalid proposal id ${lectureApplicationId}`);
-
-                let operations = cProposal.proposed_transaction.operations;
-                let lectureId = operations[0][1].from;
 
                 let tr = new TransactionBuilder();
 
@@ -279,7 +274,7 @@ class TeacherApi{
                         amount: 0,
                         asset_id: cFeeAsset.get("id")
                     },
-                    fee_paying_account: lectureId,
+                    fee_paying_account: cTeacherAccount.get('id'),
                     proposal: lectureApplicationId,
                     active_approvals_to_add: [cTeacherAccount.get('id')],
                 } );

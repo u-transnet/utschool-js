@@ -49,10 +49,11 @@ class StudentApi{
                 } );
 
                 tr.propose({
-                    fee_paying_account: cLectureAccount.get("id"),
+                    fee_paying_account: cStudentAccount.get("id"),
                 });
 
                 tr.set_required_fees().then(() => {
+                    console.log(this.account.name, this.account.privateKey, this.account.privateKey.toPublicKey().toPublicKeyString())
                     tr.add_signer(this.account.privateKey, this.account.privateKey.toPublicKey().toPublicKeyString());
                     tr.broadcast().then((resp)=>{resolve(tr.serialize())}).catch(reject);
                 }).catch(reject);
