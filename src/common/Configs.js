@@ -8,9 +8,10 @@ let utSchoolTokenSession = utSchoolToken+'.SESSION';
 let utSchoolTokenGrade = utSchoolToken+'.GRADE';
 
 let utSchoolAccount='ut-school';
-let utSchoolFaucet='u-tech-faucet';
+let utSchoolFaucet = 'u-tech-faucet';
+let utSchoolFaucetAddress = 'https://transnet.tech:10443/api/v1/accounts';
 
 
 
-
-export {utSchoolToken, utSchoolTokenTicket, utSchoolTokenSession, utSchoolTokenGrade, utSchoolAccount, utSchoolFaucet}
+export {utSchoolToken, utSchoolTokenTicket, utSchoolTokenSession, utSchoolTokenGrade, utSchoolAccount,
+    utSchoolFaucetAddress, utSchoolFaucet}

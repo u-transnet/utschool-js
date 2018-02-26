@@ -259,6 +259,382 @@ exports.default = _Api.Api; /**
     });
     // END FILE
 
+    // BEGIN FILE ./cli/Api.js
+    require.register("./cli/Api.js", function (module, exports, require) {
+
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _class, _temp; /**
+                    * Created by superpchelka on 24.02.18.
+                    */
+
+var _StudentApi = require('./StudentApi');
+
+var _StudentApi2 = _interopRequireDefault(_StudentApi);
+
+var _TeacherApi = require('./TeacherApi');
+
+var _TeacherApi2 = _interopRequireDefault(_TeacherApi);
+
+var _Api = require('../api/Api');
+
+var _ProgramsGenerator = require('./ProgramsGenerator');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Api = (_temp = _class = function () {
+    function Api() {
+        _classCallCheck(this, Api);
+    }
+
+    _createClass(Api, null, [{
+        key: 'getPrograms',
+        value: function getPrograms(nodeUrl, login, password, privateKey, onResult) {
+            return _Api.Api.init(nodeUrl, login, privateKey).then(function (api) {
+                if (!privateKey) privateKey = _Api.Api.generateKeys(login, password).pubKeys.active;
+
+                return [].concat(_toConsumableArray((0, _ProgramsGenerator.generatePrograms)(Api.programs, api, onResult)), _toConsumableArray((0, _ProgramsGenerator.generatePrograms)(_StudentApi2.default.programs, api.studentApi, onResult)), _toConsumableArray((0, _ProgramsGenerator.generatePrograms)(_TeacherApi2.default.programs, api.teacherApi, onResult)));
+            });
+        }
+    }]);
+
+    return Api;
+}(), _class.programs = [{
+    command: {
+        name: 'setPrivateKey',
+        description: 'set private key of current user'
+    },
+    options: [{
+        key: 'privateKey',
+        name: '-p, --privateKey <privateKey>',
+        description: 'private key',
+        required: true
+    }],
+    exec: 'setPrivateKey'
+}, {
+    command: {
+        name: 'register',
+        description: 'register user by login, password'
+    },
+    options: [{
+        key: 'login',
+        name: '-l, --login <login>',
+        description: 'name of the new bitshares account',
+        required: true
+    }, {
+        key: 'password',
+        name: '-p, --password <password>',
+        description: 'password for generating bitshares keys',
+        required: true
+    }],
+    exec: 'register'
+}], _temp);
+exports.default = Api;
+    });
+    // END FILE
+
+    // BEGIN FILE ./cli/ProgramsGenerator.js
+    require.register("./cli/ProgramsGenerator.js", function (module, exports, require) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.generatePrograms = undefined;
+
+var _commander = require("commander");
+
+var _commander2 = _interopRequireDefault(_commander);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function generatePrograms(programsList, api, onResult) {
+    var programs = [];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        var _loop = function _loop() {
+            var programData = _step.value;
+
+            var program = new _commander2.default.Command(programData.command.name);
+            program.description(programData.command.description);
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = programData.options[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var option = _step2.value;
+
+                    program.option(option.name, option.description);
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+
+            program.action(function (commandName, command) {
+                if (commandName !== programData.command.name) return;
+
+                var apiArgs = [];
+                var _iteratorNormalCompletion3 = true;
+                var _didIteratorError3 = false;
+                var _iteratorError3 = undefined;
+
+                try {
+                    for (var _iterator3 = programData.options[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                        var option = _step3.value;
+
+                        var optionValue = command[option.key];
+                        if ((typeof optionValue === 'undefined' || optionValue === null) && option.required) {
+                            onResult(commandName, "Option " + option.name + " is required for method " + commandName, true);
+                            return;
+                        }
+                        apiArgs.push(optionValue);
+                    }
+                } catch (err) {
+                    _didIteratorError3 = true;
+                    _iteratorError3 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                            _iterator3.return();
+                        }
+                    } finally {
+                        if (_didIteratorError3) {
+                            throw _iteratorError3;
+                        }
+                    }
+                }
+
+                api[programData.exec].apply(api, apiArgs).then(function (resp) {
+                    onResult(commandName, resp, false);
+                }).catch(function (error) {
+                    onResult(commandName, error, true);
+                });
+            });
+
+            programs.push(program);
+        };
+
+        for (var _iterator = programsList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            _loop();
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return programs;
+} /**
+   * Created by superpchelka on 25.02.18.
+   */
+
+exports.generatePrograms = generatePrograms;
+    });
+    // END FILE
+
+    // BEGIN FILE ./cli/StudentApi.js
+    require.register("./cli/StudentApi.js", function (module, exports, require) {
+
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _class, _temp;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Created by superpchelka on 24.02.18.
+ */
+
+var StudentApi = (_temp = _class = function StudentApi() {
+    _classCallCheck(this, StudentApi);
+}, _class.programs = [{
+    command: {
+        name: 'studentApi.applyForLecture',
+        description: 'apply current user for the lecture'
+    },
+    options: [{
+        key: 'lectureAccount',
+        name: '-l, --lectureAccount <lectureAccount>',
+        description: 'name of the bitshares lecture account',
+        required: true
+    }],
+    exec: 'applyForLecture'
+}, {
+    command: {
+        name: 'studentApi.getLectureStats',
+        description: 'collect information about lecture'
+    },
+    options: [{
+        key: 'lectureAccount',
+        name: '-l, --lectureAccount <lectureAccount>',
+        description: 'name of the bitshares lecture account',
+        required: true
+    }],
+    exec: 'getLectureStats'
+}, {
+    command: {
+        name: 'studentApi.getLectures',
+        description: 'return all available lectures for current user'
+    },
+    options: [],
+    exec: 'getLectures'
+}], _temp);
+exports.default = StudentApi;
+    });
+    // END FILE
+
+    // BEGIN FILE ./cli/TeacherApi.js
+    require.register("./cli/TeacherApi.js", function (module, exports, require) {
+
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _class, _temp;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Created by superpchelka on 24.02.18.
+ */
+
+var TeacherApi = (_temp = _class = function TeacherApi() {
+    _classCallCheck(this, TeacherApi);
+}, _class.programs = [{
+    command: {
+        name: 'teacherApi.sendSessionToken',
+        description: 'send session token from lecture account to particular student'
+    },
+    options: [{
+        key: 'lectureAccount',
+        name: '-l, --lectureAccount <lectureAccount>',
+        description: 'name of the bitshares lecture account',
+        required: true
+    }, {
+        key: 'studentAccount',
+        name: '-s, --studentAccount <studentAccount>',
+        description: 'name of the bitshares student account',
+        required: true
+    }],
+    exec: 'sendSessionToken'
+}, {
+    command: {
+        name: 'teacherApi.sendGradeToken',
+        description: 'send grade token from lecture account to particular student'
+    },
+    options: [{
+        key: 'lectureAccount',
+        name: '-l, --lectureAccount <lectureAccount>',
+        description: 'name of the bitshares lecture account',
+        required: true
+    }, {
+        key: 'studentAccount',
+        name: '-s, --studentAccount <studentAccount>',
+        description: 'name of the bitshares student account',
+        required: true
+    }],
+    exec: 'sendGradeToken'
+}, {
+    command: {
+        name: 'teacherApi.getLectureParticipants',
+        description: 'fetch from blockchain information about participants of the lecture'
+    },
+    options: [{
+        key: 'lectureAccount',
+        name: '-l, --lectureAccount <lectureAccount>',
+        description: 'name of the bitshares lecture account',
+        required: true
+    }],
+    exec: 'getLectureParticipants'
+}, {
+    command: {
+        name: 'teacherApi.getLectureApplications',
+        description: 'fetch from blockchain information about applications for the lecture'
+    },
+    options: [{
+        key: 'lectureAccount',
+        name: '-l, --lectureAccount <lectureAccount>',
+        description: 'name of the bitshares lecture account',
+        required: true
+    }],
+    exec: 'getLectureApplications'
+}, {
+    command: {
+        name: 'teacherApi.acceptApplication',
+        description: 'accept proposal for application for the lecture'
+    },
+    options: [{
+        key: 'lectureApplicationId',
+        name: '-i, --lectureApplicationId <lectureApplicationId>',
+        description: 'id of the proposal for application for the lecture',
+        required: true
+    }],
+    exec: 'acceptApplication'
+}, {
+    command: {
+        name: 'teacherApi.getLectureStats',
+        description: 'return statistics about particular lecture'
+    },
+    options: [{
+        key: 'lectureAccount',
+        name: '-l, --lectureAccount <lectureAccount>',
+        description: 'name of the bitshares lecture account',
+        required: true
+    }],
+    exec: 'getLectureStats'
+}, {
+    command: {
+        name: 'teacherApi.getLectures',
+        description: 'collect all lectures of the current user'
+    },
+    options: [],
+    exec: 'getLectures'
+}], _temp);
+exports.default = TeacherApi;
+    });
+    // END FILE
+
     // BEGIN FILE ./api/Api.js
     require.register("./api/Api.js", function (module, exports, require) {
 
@@ -268,8 +644,6 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.Api = undefined;
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * Created by superpchelka on 23.02.18.
@@ -283,13 +657,13 @@ var _TeacherApi = require("./TeacherApi");
 
 var _BlockchainApi = require("./BlockchainApi");
 
-var _assert = require("assert");
-
-var _assert2 = _interopRequireDefault(_assert);
-
 var _bitsharesjs = require("bitsharesjs");
 
 var _Configs = require("../common/Configs");
+
+var _requestPromise = require("request-promise");
+
+var _requestPromise2 = _interopRequireDefault(_requestPromise);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -357,61 +731,32 @@ var Api = function () {
          * @desc register user by login, password
          * @param login - name of the new bitshares account
          * @param password - password for generating bitshares keys
-         * @return serialized transaction
          */
 
     }, {
         key: "register",
         value: function register(login, password) {
-
-            _bitsharesjs.ChainValidation.required(_Configs.utSchoolFaucet, "registrar_id");
-
-            var keys = Api.generateKeys(login, password);
-
             return new Promise(function (resolve, reject) {
-                return Promise.all([(0, _bitsharesjs.FetchChain)("getAccount", _Configs.utSchoolFaucet)]).then(function (res) {
-                    var _res = _slicedToArray(res, 1),
-                        chain_registrar = _res[0];
+                var keys = Api.generateKeys(login, password);
 
-                    (0, _assert2.default)(chain_registrar, "Invalid faucet account " + _Configs.utSchoolFaucet);
-
-                    var tr = new _bitsharesjs.TransactionBuilder();
-                    tr.add_type_operation("account_create", {
-                        fee: {
-                            amount: 0,
-                            asset_id: 0
-                        },
-                        "registrar": chain_registrar.get("id"),
-                        "referrer": chain_registrar.get("id"),
-                        "referrer_percent": 0,
-                        "name": login,
-                        "owner": {
-                            "weight_threshold": 1,
-                            "account_auths": [],
-                            "key_auths": [[keys.pubKeys.owner, 1]],
-                            "address_auths": []
-                        },
-                        "active": {
-                            "weight_threshold": 1,
-                            "account_auths": [],
-                            "key_auths": [[keys.pubKeys.active, 1]],
-                            "address_auths": []
-                        },
-                        "options": {
-                            "memo_key": keys.pubKeys.memo,
-                            "voting_account": "1.2.5",
-                            "num_witness": 0,
-                            "num_committee": 0,
-                            "votes": []
+                (0, _requestPromise2.default)({
+                    method: "POST",
+                    url: _Configs.utSchoolFaucetAddress,
+                    body: {
+                        account: {
+                            active_key: keys.pubKeys.active,
+                            memo_key: keys.pubKeys.memo,
+                            owner_key: keys.pubKeys.owner,
+                            name: login,
+                            referrer: _Configs.utSchoolFaucet
                         }
-                    });
-                    tr.set_required_fees().then(function () {
-                        console.log("serialized transaction:", tr.serialize());
-                        tr.broadcast().then(function (resp) {
-                            resolve(tr.serialize());
-                        }).catch(reject);
-                    }).catch(reject);
-                }).catch(reject);
+                    },
+                    json: true
+                }).then(function (resp) {
+                    resolve(resp);
+                }).catch(function (err) {
+                    reject("Faucet " + _Configs.utSchoolFaucetAddress + " failed. " + err);
+                });
             });
         }
     }]);
@@ -1657,382 +2002,6 @@ exports.TeacherApi = TeacherApi;
     });
     // END FILE
 
-    // BEGIN FILE ./cli/Api.js
-    require.register("./cli/Api.js", function (module, exports, require) {
-
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _class, _temp; /**
-                    * Created by superpchelka on 24.02.18.
-                    */
-
-var _StudentApi = require('./StudentApi');
-
-var _StudentApi2 = _interopRequireDefault(_StudentApi);
-
-var _TeacherApi = require('./TeacherApi');
-
-var _TeacherApi2 = _interopRequireDefault(_TeacherApi);
-
-var _Api = require('../api/Api');
-
-var _ProgramsGenerator = require('./ProgramsGenerator');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Api = (_temp = _class = function () {
-    function Api() {
-        _classCallCheck(this, Api);
-    }
-
-    _createClass(Api, null, [{
-        key: 'getPrograms',
-        value: function getPrograms(nodeUrl, login, password, privateKey, onResult) {
-            return _Api.Api.init(nodeUrl, login, privateKey).then(function (api) {
-                if (!privateKey) privateKey = _Api.Api.generateKeys(login, password).pubKeys.active;
-
-                return [].concat(_toConsumableArray((0, _ProgramsGenerator.generatePrograms)(Api.programs, api, onResult)), _toConsumableArray((0, _ProgramsGenerator.generatePrograms)(_StudentApi2.default.programs, api.studentApi, onResult)), _toConsumableArray((0, _ProgramsGenerator.generatePrograms)(_TeacherApi2.default.programs, api.teacherApi, onResult)));
-            });
-        }
-    }]);
-
-    return Api;
-}(), _class.programs = [{
-    command: {
-        name: 'setPrivateKey',
-        description: 'set private key of current user'
-    },
-    options: [{
-        key: 'privateKey',
-        name: '-p, --privateKey <privateKey>',
-        description: 'private key',
-        required: true
-    }],
-    exec: 'setPrivateKey'
-}, {
-    command: {
-        name: 'register',
-        description: 'register user by login, password'
-    },
-    options: [{
-        key: 'login',
-        name: '-l, --login <login>',
-        description: 'name of the new bitshares account',
-        required: true
-    }, {
-        key: 'password',
-        name: '-p, --password <password>',
-        description: 'password for generating bitshares keys',
-        required: true
-    }],
-    exec: 'register'
-}], _temp);
-exports.default = Api;
-    });
-    // END FILE
-
-    // BEGIN FILE ./cli/ProgramsGenerator.js
-    require.register("./cli/ProgramsGenerator.js", function (module, exports, require) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.generatePrograms = undefined;
-
-var _commander = require("commander");
-
-var _commander2 = _interopRequireDefault(_commander);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function generatePrograms(programsList, api, onResult) {
-    var programs = [];
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        var _loop = function _loop() {
-            var programData = _step.value;
-
-            var program = new _commander2.default.Command(programData.command.name);
-            program.description(programData.command.description);
-            var _iteratorNormalCompletion2 = true;
-            var _didIteratorError2 = false;
-            var _iteratorError2 = undefined;
-
-            try {
-                for (var _iterator2 = programData.options[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                    var option = _step2.value;
-
-                    program.option(option.name, option.description);
-                }
-            } catch (err) {
-                _didIteratorError2 = true;
-                _iteratorError2 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                        _iterator2.return();
-                    }
-                } finally {
-                    if (_didIteratorError2) {
-                        throw _iteratorError2;
-                    }
-                }
-            }
-
-            program.action(function (commandName, command) {
-                if (commandName !== programData.command.name) return;
-
-                var apiArgs = [];
-                var _iteratorNormalCompletion3 = true;
-                var _didIteratorError3 = false;
-                var _iteratorError3 = undefined;
-
-                try {
-                    for (var _iterator3 = programData.options[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                        var option = _step3.value;
-
-                        var optionValue = command[option.key];
-                        if ((typeof optionValue === 'undefined' || optionValue === null) && option.required) {
-                            onResult(commandName, "Option " + option.name + " is required for method " + commandName, true);
-                            return;
-                        }
-                        apiArgs.push(optionValue);
-                    }
-                } catch (err) {
-                    _didIteratorError3 = true;
-                    _iteratorError3 = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                            _iterator3.return();
-                        }
-                    } finally {
-                        if (_didIteratorError3) {
-                            throw _iteratorError3;
-                        }
-                    }
-                }
-
-                api[programData.exec].apply(api, apiArgs).then(function (resp) {
-                    onResult(commandName, resp, false);
-                }).catch(function (error) {
-                    onResult(commandName, error, true);
-                });
-            });
-
-            programs.push(program);
-        };
-
-        for (var _iterator = programsList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            _loop();
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-
-    return programs;
-} /**
-   * Created by superpchelka on 25.02.18.
-   */
-
-exports.generatePrograms = generatePrograms;
-    });
-    // END FILE
-
-    // BEGIN FILE ./cli/StudentApi.js
-    require.register("./cli/StudentApi.js", function (module, exports, require) {
-
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _class, _temp;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Created by superpchelka on 24.02.18.
- */
-
-var StudentApi = (_temp = _class = function StudentApi() {
-    _classCallCheck(this, StudentApi);
-}, _class.programs = [{
-    command: {
-        name: 'studentApi.applyForLecture',
-        description: 'apply current user for the lecture'
-    },
-    options: [{
-        key: 'lectureAccount',
-        name: '-l, --lectureAccount <lectureAccount>',
-        description: 'name of the bitshares lecture account',
-        required: true
-    }],
-    exec: 'applyForLecture'
-}, {
-    command: {
-        name: 'studentApi.getLectureStats',
-        description: 'collect information about lecture'
-    },
-    options: [{
-        key: 'lectureAccount',
-        name: '-l, --lectureAccount <lectureAccount>',
-        description: 'name of the bitshares lecture account',
-        required: true
-    }],
-    exec: 'getLectureStats'
-}, {
-    command: {
-        name: 'studentApi.getLectures',
-        description: 'return all available lectures for current user'
-    },
-    options: [],
-    exec: 'getLectures'
-}], _temp);
-exports.default = StudentApi;
-    });
-    // END FILE
-
-    // BEGIN FILE ./cli/TeacherApi.js
-    require.register("./cli/TeacherApi.js", function (module, exports, require) {
-
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _class, _temp;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Created by superpchelka on 24.02.18.
- */
-
-var TeacherApi = (_temp = _class = function TeacherApi() {
-    _classCallCheck(this, TeacherApi);
-}, _class.programs = [{
-    command: {
-        name: 'teacherApi.sendSessionToken',
-        description: 'send session token from lecture account to particular student'
-    },
-    options: [{
-        key: 'lectureAccount',
-        name: '-l, --lectureAccount <lectureAccount>',
-        description: 'name of the bitshares lecture account',
-        required: true
-    }, {
-        key: 'studentAccount',
-        name: '-s, --studentAccount <studentAccount>',
-        description: 'name of the bitshares student account',
-        required: true
-    }],
-    exec: 'sendSessionToken'
-}, {
-    command: {
-        name: 'teacherApi.sendGradeToken',
-        description: 'send grade token from lecture account to particular student'
-    },
-    options: [{
-        key: 'lectureAccount',
-        name: '-l, --lectureAccount <lectureAccount>',
-        description: 'name of the bitshares lecture account',
-        required: true
-    }, {
-        key: 'studentAccount',
-        name: '-s, --studentAccount <studentAccount>',
-        description: 'name of the bitshares student account',
-        required: true
-    }],
-    exec: 'sendGradeToken'
-}, {
-    command: {
-        name: 'teacherApi.getLectureParticipants',
-        description: 'fetch from blockchain information about participants of the lecture'
-    },
-    options: [{
-        key: 'lectureAccount',
-        name: '-l, --lectureAccount <lectureAccount>',
-        description: 'name of the bitshares lecture account',
-        required: true
-    }],
-    exec: 'getLectureParticipants'
-}, {
-    command: {
-        name: 'teacherApi.getLectureApplications',
-        description: 'fetch from blockchain information about applications for the lecture'
-    },
-    options: [{
-        key: 'lectureAccount',
-        name: '-l, --lectureAccount <lectureAccount>',
-        description: 'name of the bitshares lecture account',
-        required: true
-    }],
-    exec: 'getLectureApplications'
-}, {
-    command: {
-        name: 'teacherApi.acceptApplication',
-        description: 'accept proposal for application for the lecture'
-    },
-    options: [{
-        key: 'lectureApplicationId',
-        name: '-i, --lectureApplicationId <lectureApplicationId>',
-        description: 'id of the proposal for application for the lecture',
-        required: true
-    }],
-    exec: 'acceptApplication'
-}, {
-    command: {
-        name: 'teacherApi.getLectureStats',
-        description: 'return statistics about particular lecture'
-    },
-    options: [{
-        key: 'lectureAccount',
-        name: '-l, --lectureAccount <lectureAccount>',
-        description: 'name of the bitshares lecture account',
-        required: true
-    }],
-    exec: 'getLectureStats'
-}, {
-    command: {
-        name: 'teacherApi.getLectures',
-        description: 'collect all lectures of the current user'
-    },
-    options: [],
-    exec: 'getLectures'
-}], _temp);
-exports.default = TeacherApi;
-    });
-    // END FILE
-
     // BEGIN FILE ./common/Account.js
     require.register("./common/Account.js", function (module, exports, require) {
 
@@ -2079,12 +2048,14 @@ var utSchoolTokenGrade = utSchoolToken + '.GRADE';
 
 var utSchoolAccount = 'ut-school';
 var utSchoolFaucet = 'u-tech-faucet';
+var utSchoolFaucetAddress = 'https://transnet.tech:10443/api/v1/accounts';
 
 exports.utSchoolToken = utSchoolToken;
 exports.utSchoolTokenTicket = utSchoolTokenTicket;
 exports.utSchoolTokenSession = utSchoolTokenSession;
 exports.utSchoolTokenGrade = utSchoolTokenGrade;
 exports.utSchoolAccount = utSchoolAccount;
+exports.utSchoolFaucetAddress = utSchoolFaucetAddress;
 exports.utSchoolFaucet = utSchoolFaucet;
     });
     // END FILE

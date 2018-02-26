@@ -269,8 +269,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Api = undefined;
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * Created by superpchelka on 23.02.18.
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
@@ -283,13 +281,13 @@ var _TeacherApi = require("./TeacherApi");
 
 var _BlockchainApi = require("./BlockchainApi");
 
-var _assert = require("assert");
-
-var _assert2 = _interopRequireDefault(_assert);
-
 var _bitsharesjs = require("bitsharesjs");
 
 var _Configs = require("../common/Configs");
+
+var _requestPromise = require("request-promise");
+
+var _requestPromise2 = _interopRequireDefault(_requestPromise);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -357,61 +355,33 @@ var Api = function () {
          * @desc register user by login, password
          * @param login - name of the new bitshares account
          * @param password - password for generating bitshares keys
-         * @return serialized transaction
+         * @return information about created account
          */
 
     }, {
         key: "register",
         value: function register(login, password) {
-
-            _bitsharesjs.ChainValidation.required(_Configs.utSchoolFaucet, "registrar_id");
-
-            var keys = Api.generateKeys(login, password);
-
             return new Promise(function (resolve, reject) {
-                return Promise.all([(0, _bitsharesjs.FetchChain)("getAccount", _Configs.utSchoolFaucet)]).then(function (res) {
-                    var _res = _slicedToArray(res, 1),
-                        chain_registrar = _res[0];
+                var keys = Api.generateKeys(login, password);
 
-                    (0, _assert2.default)(chain_registrar, "Invalid faucet account " + _Configs.utSchoolFaucet);
-
-                    var tr = new _bitsharesjs.TransactionBuilder();
-                    tr.add_type_operation("account_create", {
-                        fee: {
-                            amount: 0,
-                            asset_id: 0
-                        },
-                        "registrar": chain_registrar.get("id"),
-                        "referrer": chain_registrar.get("id"),
-                        "referrer_percent": 0,
-                        "name": login,
-                        "owner": {
-                            "weight_threshold": 1,
-                            "account_auths": [],
-                            "key_auths": [[keys.pubKeys.owner, 1]],
-                            "address_auths": []
-                        },
-                        "active": {
-                            "weight_threshold": 1,
-                            "account_auths": [],
-                            "key_auths": [[keys.pubKeys.active, 1]],
-                            "address_auths": []
-                        },
-                        "options": {
-                            "memo_key": keys.pubKeys.memo,
-                            "voting_account": "1.2.5",
-                            "num_witness": 0,
-                            "num_committee": 0,
-                            "votes": []
+                (0, _requestPromise2.default)({
+                    method: "POST",
+                    url: _Configs.utSchoolFaucetAddress,
+                    body: {
+                        account: {
+                            active_key: keys.pubKeys.active,
+                            memo_key: keys.pubKeys.memo,
+                            owner_key: keys.pubKeys.owner,
+                            name: login,
+                            referrer: _Configs.utSchoolFaucet
                         }
-                    });
-                    tr.set_required_fees().then(function () {
-                        console.log("serialized transaction:", tr.serialize());
-                        tr.broadcast().then(function (resp) {
-                            resolve(tr.serialize());
-                        }).catch(reject);
-                    }).catch(reject);
-                }).catch(reject);
+                    },
+                    json: true
+                }).then(function (resp) {
+                    resolve(resp);
+                }).catch(function (err) {
+                    reject("Faucet " + _Configs.utSchoolFaucetAddress + " failed. " + err);
+                });
             });
         }
     }]);
@@ -2079,12 +2049,14 @@ var utSchoolTokenGrade = utSchoolToken + '.GRADE';
 
 var utSchoolAccount = 'ut-school';
 var utSchoolFaucet = 'u-tech-faucet';
+var utSchoolFaucetAddress = 'https://transnet.tech:10443/api/v1/accounts';
 
 exports.utSchoolToken = utSchoolToken;
 exports.utSchoolTokenTicket = utSchoolTokenTicket;
 exports.utSchoolTokenSession = utSchoolTokenSession;
 exports.utSchoolTokenGrade = utSchoolTokenGrade;
 exports.utSchoolAccount = utSchoolAccount;
+exports.utSchoolFaucetAddress = utSchoolFaucetAddress;
 exports.utSchoolFaucet = utSchoolFaucet;
     });
     // END FILE
