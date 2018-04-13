@@ -1,10 +1,11 @@
 {
-  "name": "schoolapi",
+  "name": "utschool-js",
   "version": "1.0.0",
   "description": "API for blockchain UT-SCHOOL demo",
-  "main": "build/app.js",
+  "main": "src/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "gulp build",
+    "build-cli": "gulp build-cli"
   },
   "keywords": [
     "blockhain",
