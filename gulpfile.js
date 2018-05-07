@@ -14,6 +14,7 @@ gulp.task('build', function() {
                 presets: ['es2015', 'stage-0', 'stage-1'],
                 plugins: ["transform-decorators-legacy"]
             }))
+            .pipe(gulp.dest('dist'))
             .pipe(concat({
                 entry: "./main.js",
                 target: "app.js"

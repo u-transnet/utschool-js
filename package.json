@@ -2,7 +2,7 @@
   "name": "utschool-js",
   "version": "1.0.0",
   "description": "API for blockchain UT-SCHOOL demo",
-  "main": "src/main.js",
+  "main": "dist/main.js",
   "scripts": {
     "build": "gulp build",
     "build-cli": "gulp build-cli"
