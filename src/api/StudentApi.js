@@ -46,16 +46,20 @@ class StudentApi{
                     from: cLectureAccount.get("id"),
                     to: cStudentAccount.get("id"),
                     amount: { asset_id: sendAsset.get("id"), amount: 1},
-                } );
-
-                tr.propose({
-                    fee_paying_account: cStudentAccount.get("id"),
                 });
 
-                tr.set_required_fees().then(() => {
-                    tr.add_signer(this.account.privateKey, this.account.privateKey.toPublicKey().toPublicKeyString());
-                    tr.broadcast().then((resp)=>{resolve(tr.serialize())}).catch(reject);
+                tr.set_required_fees().then(()=>{
+                    tr.propose({
+                        fee_paying_account: cStudentAccount.get("id"),
+                    });
+
+                    tr.set_required_fees().then(() => {
+                        tr.add_signer(this.account.privateKey, this.account.privateKey.toPublicKey().toPublicKeyString());
+                        tr.broadcast().then((resp)=>{resolve(tr.serialize())}).catch(reject);
+                    }).catch(reject);
                 }).catch(reject);
+
+
             }).catch(reject);
         });
     }

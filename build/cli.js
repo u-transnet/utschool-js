@@ -647,14 +647,16 @@ var StudentApi = function () {
                         amount: { asset_id: sendAsset.get("id"), amount: 1 }
                     });
 
-                    tr.propose({
-                        fee_paying_account: cStudentAccount.get("id")
-                    });
-
                     tr.set_required_fees().then(function () {
-                        tr.add_signer(_this.account.privateKey, _this.account.privateKey.toPublicKey().toPublicKeyString());
-                        tr.broadcast().then(function (resp) {
-                            resolve(tr.serialize());
+                        tr.propose({
+                            fee_paying_account: cStudentAccount.get("id")
+                        });
+
+                        tr.set_required_fees().then(function () {
+                            tr.add_signer(_this.account.privateKey, _this.account.privateKey.toPublicKey().toPublicKeyString());
+                            tr.broadcast().then(function (resp) {
+                                resolve(tr.serialize());
+                            }).catch(reject);
                         }).catch(reject);
                     }).catch(reject);
                 }).catch(reject);
