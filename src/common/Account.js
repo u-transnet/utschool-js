@@ -9,6 +9,10 @@ class Account{
 
     constructor(account, privateKeyWif){
         this.name=account;
+        this.setPrivateKey(privateKeyWif);
+    }
+
+    setPrivateKey(privateKeyWif){
         this.privateKey = privateKeyWif?PrivateKey.fromWif(privateKeyWif):null;
     }
 
