@@ -1086,18 +1086,27 @@ var TeacherApi = function () {
         key: 'getLectureParticipants',
         value: function getLectureParticipants(lectureAccount) {
             return new Promise(function (resolve, reject) {
-                Promise.all([(0, _bitsharesjs.FetchChain)("getAccount", lectureAccount), (0, _bitsharesjs.FetchChain)("getAsset", _Configs.utSchoolTokenTicket)]).then(function (res) {
+                var schoolTokens = [_Configs.utSchoolTokenTicket, _Configs.utSchoolTokenSession, _Configs.utSchoolTokenGrade];
+                Promise.all([(0, _bitsharesjs.FetchChain)("getAccount", lectureAccount), (0, _bitsharesjs.FetchChain)("getAsset", schoolTokens)]).then(function (res) {
                     var _res2 = _slicedToArray(res, 2),
                         cLectureAccount = _res2[0],
-                        cTicketToken = _res2[1];
+                        tokens = _res2[1];
+
+                    tokens = tokens.toJS();
 
                     (0, _assert2.default)(cLectureAccount !== null, 'Invalid lecture account ' + lectureAccount);
-                    (0, _assert2.default)(cTicketToken !== null, 'Invalid ticket token ' + _Configs.utSchoolTokenTicket);
+                    (0, _assert2.default)(tokens[0] !== null, 'Invalid ticket token ' + schoolTokens[0]);
+                    (0, _assert2.default)(tokens[1] !== null, 'Invalid session token ' + schoolTokens[1]);
+                    (0, _assert2.default)(tokens[2] !== null, 'Invalid grade token ' + schoolTokens[2]);
 
-                    cLectureAccount = cLectureAccount.get('id');
-                    cTicketToken = cTicketToken.get('id');
+                    var cLectureAccountId = cLectureAccount.get('id');
+                    var statsMap = {};
+                    var tokensIds = tokens.map(function (token) {
+                        return token.id;
+                    });
+                    var cTicketTokenId = tokens[0].id;
 
-                    _BitsharesApiExtends.BitsharesApiExtends.fetchHistory(cLectureAccount, 100, 'transfer').then(function (operations) {
+                    _BitsharesApiExtends.BitsharesApiExtends.fetchHistory(cLectureAccountId, 100, 'transfer').then(function (operations) {
                         var lectureParticipantsIds = [];
                         var _iteratorNormalCompletion = true;
                         var _didIteratorError = false;
@@ -1108,8 +1117,50 @@ var TeacherApi = function () {
                                 var operation = _step.value;
 
                                 var transferData = operation.op[1];
-                                if (transferData.from == cLectureAccount && transferData.amount.asset_id == cTicketToken) {
-                                    lectureParticipantsIds.push(transferData.to);
+                                if (transferData.from === cLectureAccountId) {
+
+                                    var index = tokensIds.indexOf(transferData.amount.asset_id);
+                                    if (index === -1) continue;
+
+                                    var transferTokenId = transferData.amount.asset_id;
+
+                                    if (transferTokenId === cTicketTokenId) lectureParticipantsIds.push(transferData.to);
+
+                                    if (tokensIds.indexOf(transferTokenId) !== -1) {
+                                        var stats = statsMap[transferData.to];
+                                        if (!stats) {
+                                            statsMap[transferData.to] = stats = {};
+                                            var _iteratorNormalCompletion4 = true;
+                                            var _didIteratorError4 = false;
+                                            var _iteratorError4 = undefined;
+
+                                            try {
+                                                for (var _iterator4 = tokens[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                                                    var token = _step4.value;
+
+                                                    stats[token.id] = {
+                                                        'id': token.id,
+                                                        'symbol': token.symbol,
+                                                        'accepted': false
+                                                    };
+                                                }
+                                            } catch (err) {
+                                                _didIteratorError4 = true;
+                                                _iteratorError4 = err;
+                                            } finally {
+                                                try {
+                                                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                                                        _iterator4.return();
+                                                    }
+                                                } finally {
+                                                    if (_didIteratorError4) {
+                                                        throw _iteratorError4;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        stats[transferTokenId]['accepted'] = true;
+                                    }
                                 }
                             }
                         } catch (err) {
@@ -1175,7 +1226,8 @@ var TeacherApi = function () {
                                     if (!accountData) continue;
                                     lectureParticipants.push({
                                         'id': accountData.id,
-                                        'name': accountData.name
+                                        'name': accountData.name,
+                                        'stats': statsMap[accountData.id]
                                     });
                                 }
                             } catch (err) {
@@ -1240,13 +1292,13 @@ var TeacherApi = function () {
 
                         var accountIds = [];
                         var index = -1;
-                        var _iteratorNormalCompletion4 = true;
-                        var _didIteratorError4 = false;
-                        var _iteratorError4 = undefined;
+                        var _iteratorNormalCompletion5 = true;
+                        var _didIteratorError5 = false;
+                        var _iteratorError5 = undefined;
 
                         try {
-                            for (var _iterator4 = cProposals[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                                var cProposal = _step4.value;
+                            for (var _iterator5 = cProposals[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                                var cProposal = _step5.value;
 
                                 index++;
                                 if (!cProposal) {
@@ -1257,13 +1309,13 @@ var TeacherApi = function () {
                                 if (Date.parse(cProposal.proposed_transaction.expiration) < new Date() / 1000) continue;
                                 var operations = cProposal.proposed_transaction.operations;
                                 var acceptedOperation = void 0;
-                                var _iteratorNormalCompletion7 = true;
-                                var _didIteratorError7 = false;
-                                var _iteratorError7 = undefined;
+                                var _iteratorNormalCompletion8 = true;
+                                var _didIteratorError8 = false;
+                                var _iteratorError8 = undefined;
 
                                 try {
-                                    for (var _iterator7 = operations[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-                                        var operation = _step7.value;
+                                    for (var _iterator8 = operations[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                                        var operation = _step8.value;
 
                                         var operationData = operation[1];
                                         if (operationData.amount.asset_id == cTicketToken && operationData.from == lectureAccountId) {
@@ -1272,16 +1324,16 @@ var TeacherApi = function () {
                                         }
                                     }
                                 } catch (err) {
-                                    _didIteratorError7 = true;
-                                    _iteratorError7 = err;
+                                    _didIteratorError8 = true;
+                                    _iteratorError8 = err;
                                 } finally {
                                     try {
-                                        if (!_iteratorNormalCompletion7 && _iterator7.return) {
-                                            _iterator7.return();
+                                        if (!_iteratorNormalCompletion8 && _iterator8.return) {
+                                            _iterator8.return();
                                         }
                                     } finally {
-                                        if (_didIteratorError7) {
-                                            throw _iteratorError7;
+                                        if (_didIteratorError8) {
+                                            throw _iteratorError8;
                                         }
                                     }
                                 }
@@ -1295,16 +1347,16 @@ var TeacherApi = function () {
                                 });
                             }
                         } catch (err) {
-                            _didIteratorError4 = true;
-                            _iteratorError4 = err;
+                            _didIteratorError5 = true;
+                            _iteratorError5 = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                                    _iterator4.return();
+                                if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                                    _iterator5.return();
                                 }
                             } finally {
-                                if (_didIteratorError4) {
-                                    throw _iteratorError4;
+                                if (_didIteratorError5) {
+                                    throw _iteratorError5;
                                 }
                             }
                         }
@@ -1318,13 +1370,13 @@ var TeacherApi = function () {
                             var accountsMap = {};
 
                             var index = -1;
-                            var _iteratorNormalCompletion5 = true;
-                            var _didIteratorError5 = false;
-                            var _iteratorError5 = undefined;
+                            var _iteratorNormalCompletion6 = true;
+                            var _didIteratorError6 = false;
+                            var _iteratorError6 = undefined;
 
                             try {
-                                for (var _iterator5 = accounts[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                                    var account = _step5.value;
+                                for (var _iterator6 = accounts[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                                    var account = _step6.value;
 
                                     index++;
                                     var accountId = accountIds[index];
@@ -1333,36 +1385,6 @@ var TeacherApi = function () {
                                         account = { id: accountId };
                                     }
                                     accountsMap[accountId] = account;
-                                }
-                            } catch (err) {
-                                _didIteratorError5 = true;
-                                _iteratorError5 = err;
-                            } finally {
-                                try {
-                                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                                        _iterator5.return();
-                                    }
-                                } finally {
-                                    if (_didIteratorError5) {
-                                        throw _iteratorError5;
-                                    }
-                                }
-                            }
-
-                            var _iteratorNormalCompletion6 = true;
-                            var _didIteratorError6 = false;
-                            var _iteratorError6 = undefined;
-
-                            try {
-                                for (var _iterator6 = applications[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                                    var application = _step6.value;
-
-                                    var accountData = accountsMap[application.operation.to];
-                                    delete application.operation;
-                                    application.account = {
-                                        'id': accountData.id,
-                                        'name': accountData.name
-                                    };
                                 }
                             } catch (err) {
                                 _didIteratorError6 = true;
@@ -1375,6 +1397,36 @@ var TeacherApi = function () {
                                 } finally {
                                     if (_didIteratorError6) {
                                         throw _iteratorError6;
+                                    }
+                                }
+                            }
+
+                            var _iteratorNormalCompletion7 = true;
+                            var _didIteratorError7 = false;
+                            var _iteratorError7 = undefined;
+
+                            try {
+                                for (var _iterator7 = applications[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                                    var application = _step7.value;
+
+                                    var accountData = accountsMap[application.operation.to];
+                                    delete application.operation;
+                                    application.account = {
+                                        'id': accountData.id,
+                                        'name': accountData.name
+                                    };
+                                }
+                            } catch (err) {
+                                _didIteratorError7 = true;
+                                _iteratorError7 = err;
+                            } finally {
+                                try {
+                                    if (!_iteratorNormalCompletion7 && _iterator7.return) {
+                                        _iterator7.return();
+                                    }
+                                } finally {
+                                    if (_didIteratorError7) {
+                                        throw _iteratorError7;
                                     }
                                 }
                             }
@@ -1505,28 +1557,28 @@ var TeacherApi = function () {
 
                     _BitsharesApiExtends.BitsharesApiExtends.fetchHistory(cUtSchoolAccount, 100, 'transfer').then(function (operations) {
                         var lecturesIdsList = [];
-                        var _iteratorNormalCompletion8 = true;
-                        var _didIteratorError8 = false;
-                        var _iteratorError8 = undefined;
+                        var _iteratorNormalCompletion9 = true;
+                        var _didIteratorError9 = false;
+                        var _iteratorError9 = undefined;
 
                         try {
-                            for (var _iterator8 = operations[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-                                var operation = _step8.value;
+                            for (var _iterator9 = operations[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                                var operation = _step9.value;
 
                                 var transferData = operation.op[1];
                                 if (transferData.from === cUtSchoolAccount && transferData.amount.asset_id === cUtSchoolToken) lecturesIdsList.push(transferData.to);
                             }
                         } catch (err) {
-                            _didIteratorError8 = true;
-                            _iteratorError8 = err;
+                            _didIteratorError9 = true;
+                            _iteratorError9 = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion8 && _iterator8.return) {
-                                    _iterator8.return();
+                                if (!_iteratorNormalCompletion9 && _iterator9.return) {
+                                    _iterator9.return();
                                 }
                             } finally {
-                                if (_didIteratorError8) {
-                                    throw _iteratorError8;
+                                if (_didIteratorError9) {
+                                    throw _iteratorError9;
                                 }
                             }
                         }
@@ -1542,13 +1594,13 @@ var TeacherApi = function () {
                             var teachersLecturesList = [];
 
                             var index = -1;
-                            var _iteratorNormalCompletion9 = true;
-                            var _didIteratorError9 = false;
-                            var _iteratorError9 = undefined;
+                            var _iteratorNormalCompletion10 = true;
+                            var _didIteratorError10 = false;
+                            var _iteratorError10 = undefined;
 
                             try {
-                                for (var _iterator9 = lectures[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-                                    var lecture = _step9.value;
+                                for (var _iterator10 = lectures[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+                                    var lecture = _step10.value;
 
                                     index++;
                                     if (!lecture) {
@@ -1560,13 +1612,13 @@ var TeacherApi = function () {
                                     if (account_auths.length === 0 || account_auths[0].length === 0) continue;
 
                                     var potentialTeacherIds = account_auths[0];
-                                    var _iteratorNormalCompletion10 = true;
-                                    var _didIteratorError10 = false;
-                                    var _iteratorError10 = undefined;
+                                    var _iteratorNormalCompletion11 = true;
+                                    var _didIteratorError11 = false;
+                                    var _iteratorError11 = undefined;
 
                                     try {
-                                        for (var _iterator10 = potentialTeacherIds[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-                                            var currentTeacherId = _step10.value;
+                                        for (var _iterator11 = potentialTeacherIds[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+                                            var currentTeacherId = _step11.value;
 
                                             if (currentTeacherId === cTeacherAccount) {
                                                 teachersLecturesList.push({
@@ -1577,31 +1629,31 @@ var TeacherApi = function () {
                                             }
                                         }
                                     } catch (err) {
-                                        _didIteratorError10 = true;
-                                        _iteratorError10 = err;
+                                        _didIteratorError11 = true;
+                                        _iteratorError11 = err;
                                     } finally {
                                         try {
-                                            if (!_iteratorNormalCompletion10 && _iterator10.return) {
-                                                _iterator10.return();
+                                            if (!_iteratorNormalCompletion11 && _iterator11.return) {
+                                                _iterator11.return();
                                             }
                                         } finally {
-                                            if (_didIteratorError10) {
-                                                throw _iteratorError10;
+                                            if (_didIteratorError11) {
+                                                throw _iteratorError11;
                                             }
                                         }
                                     }
                                 }
                             } catch (err) {
-                                _didIteratorError9 = true;
-                                _iteratorError9 = err;
+                                _didIteratorError10 = true;
+                                _iteratorError10 = err;
                             } finally {
                                 try {
-                                    if (!_iteratorNormalCompletion9 && _iterator9.return) {
-                                        _iterator9.return();
+                                    if (!_iteratorNormalCompletion10 && _iterator10.return) {
+                                        _iterator10.return();
                                     }
                                 } finally {
-                                    if (_didIteratorError9) {
-                                        throw _iteratorError9;
+                                    if (_didIteratorError10) {
+                                        throw _iteratorError10;
                                     }
                                 }
                             }

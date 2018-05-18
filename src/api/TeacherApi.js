@@ -89,29 +89,55 @@ class TeacherApi{
      */
     getLectureParticipants(lectureAccount){
         return new Promise( (resolve, reject) => {
+            let schoolTokens = [utSchoolTokenTicket, utSchoolTokenSession, utSchoolTokenGrade];
             Promise.all([
                 FetchChain("getAccount", lectureAccount),
-                FetchChain("getAsset", utSchoolTokenTicket)
+                FetchChain("getAsset", schoolTokens),
             ]).then((res)=> {
-                let [cLectureAccount, cTicketToken] = res;
+                let [cLectureAccount, tokens] = res;
+                tokens = tokens.toJS();
 
                 assert(cLectureAccount !== null, `Invalid lecture account ${lectureAccount}`);
-                assert(cTicketToken !== null, `Invalid ticket token ${utSchoolTokenTicket}`);
+                assert(tokens[0] !== null, `Invalid ticket token ${schoolTokens[0]}`);
+                assert(tokens[1] !== null, `Invalid session token ${schoolTokens[1]}`);
+                assert(tokens[2]!== null, `Invalid grade token ${schoolTokens[2]}`);
 
-                cLectureAccount = cLectureAccount.get('id');
-                cTicketToken = cTicketToken.get('id');
+                let cLectureAccountId = cLectureAccount.get('id');
+                let statsMap = {};
+                let tokensIds = tokens.map(token=>token.id);
+                let cTicketTokenId = tokens[0].id;
 
-
-                BitsharesApiExtends.fetchHistory(cLectureAccount, 100, 'transfer').then((operations)=>{
+                BitsharesApiExtends.fetchHistory(cLectureAccountId, 100, 'transfer').then((operations)=>{
                     let lectureParticipantsIds = [];
                     for(let operation of operations){
                         let transferData=operation.op[1];
-                        if(transferData.from == cLectureAccount
-                            && transferData.amount.asset_id == cTicketToken){
-                            lectureParticipantsIds.push(transferData.to);
+                        if(transferData.from === cLectureAccountId) {
+
+                            let index = tokensIds.indexOf(transferData.amount.asset_id);
+                            if (index === -1)
+                                continue;
+
+                            let transferTokenId = transferData.amount.asset_id;
+
+                            if (transferTokenId === cTicketTokenId)
+                                lectureParticipantsIds.push(transferData.to);
+
+                            if (tokensIds.indexOf(transferTokenId) !== -1) {
+                                let stats = statsMap[transferData.to];
+                                if (!stats) {
+                                    statsMap[transferData.to] = stats = {};
+                                    for(let token of tokens){
+                                        stats[token.id] = {
+                                            'id': token.id,
+                                            'symbol': token.symbol,
+                                            'accepted': false
+                                        }
+                                    }
+                                }
+                                stats[transferTokenId]['accepted'] = true;
+                            }
                         }
                     }
-
 
                     FetchChain('getAccount', lectureParticipantsIds).then((accounts)=>{
                         accounts = accounts.toJS();
@@ -134,7 +160,8 @@ class TeacherApi{
                                 continue;
                             lectureParticipants.push({
                                 'id': accountData.id,
-                                'name': accountData.name
+                                'name': accountData.name,
+                                'stats': statsMap[accountData.id]
                             });
                         }
 
