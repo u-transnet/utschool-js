@@ -84,6 +84,7 @@ class StudentApi{
                 FetchChain("getAsset", schoolTokens)
             ]).then((res)=> {
                 let [cLectureAccount, studentAccount, assets] = res;
+                assets = assets.toJS();
 
                 assert(cLectureAccount !== null, `Invalid lecture account ${cLectureAccount}`);
                 assert(studentAccount !== null, `Invalid student account ${this.account.name}`);
@@ -97,11 +98,11 @@ class StudentApi{
 
                 let assetsMap = {};
                 for(let asset of assets)
-                    assetsMap[asset.get('id')] = {
-                        'id': asset.get('id'),
-                        'symbol': asset.get('symbol'),
+                    assetsMap[asset.id] = {
+                        'id': asset.id,
+                        'symbol': asset.symbol,
                         'accepted': false,
-                        'balance': ChainStore.getAccountBalance(cLectureAccount, asset.get('id'))
+                        'balance': ChainStore.getAccountBalance(cLectureAccount, asset.id)
                     };
 
                 BitsharesApiExtends.fetchHistory(lectureAccountId, 100, 'transfer').then((operations)=>{

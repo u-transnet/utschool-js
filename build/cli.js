@@ -688,6 +688,8 @@ var StudentApi = function () {
                         studentAccount = _res2[1],
                         assets = _res2[2];
 
+                    assets = assets.toJS();
+
                     (0, _assert2.default)(cLectureAccount !== null, 'Invalid lecture account ' + cLectureAccount);
                     (0, _assert2.default)(studentAccount !== null, 'Invalid student account ' + _this2.account.name);
                     (0, _assert2.default)(assets[0] !== null, 'Invalid ticket token ' + schoolTokens[0]);
@@ -706,11 +708,11 @@ var StudentApi = function () {
                         for (var _iterator = assets[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                             var asset = _step.value;
 
-                            assetsMap[asset.get('id')] = {
-                                'id': asset.get('id'),
-                                'symbol': asset.get('symbol'),
+                            assetsMap[asset.id] = {
+                                'id': asset.id,
+                                'symbol': asset.symbol,
                                 'accepted': false,
-                                'balance': _bitsharesjs.ChainStore.getAccountBalance(cLectureAccount, asset.get('id'))
+                                'balance': _bitsharesjs.ChainStore.getAccountBalance(cLectureAccount, asset.id)
                             };
                         }
                     } catch (err) {
