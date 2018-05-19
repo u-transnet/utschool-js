@@ -3,7 +3,7 @@
 # ut-school-js
 Библиотека для направления https://github.com/u-transnet/UT-SCHOOL реализующая взаимодействие с blockchain'ом и механику данного направления.
 
-## Installation
+## Установка
 
 ```
 git clone https://github.com/u-transnet/utschool-js
@@ -83,7 +83,7 @@ Output:
 
 ```
 
-Start CLI
+Запуск CLI
 ```
 node build/cli.js -l exampleLogin -k exampleKey -u wss://example.com
 > help // Запрос доступных команд
@@ -93,12 +93,12 @@ node build/cli.js -l exampleLogin -k exampleKey -u wss://example.com
 
 
 
-## Related projects
+## Связанные проекты
 - [bitsharesjs](https://github.com/bitshares/bitsharesjs)
 - [bitsharesjs-ws](https://github.com/bitshares/bitsharesjs-ws)
 
-## Contributing
-We'd love to have your helping hand on our project! See [CONTRIBUTING.md](CONTRIBUTING.md) for more information on what we're looking for and how to get started.
+## Сотрудничество
+Мы будем рады вашей помощи в развитии проекта! Откройте [CONTRIBUTING.ru.md](CONTRIBUTING.ru.md) для того, чтобы узнать чем Вы можете поможете помочь проекту и как присоединиться
 
-## License
-Project is under the MIT license. See [LICENSE](LICENSE) for more information.
+## Лицензия
+Проект использует MIT лицензию. Откройте [LICENSE](LICENSE) для подробностей
