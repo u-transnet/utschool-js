@@ -11,7 +11,7 @@ cd utschool-js
 npm install
 ```
 
-# Api
+## Api
 Реалализация основных механики взаимодействия с blockchain'ом, которое находится в файле build/app.js
 
 Инициализация API с приватным ключом.
@@ -60,7 +60,7 @@ Api.init(nodeUrl, accountName, privateKey)
 
 ```
 
-# CLI
+## CLI
 Интерфейс командной строки реализованный на nodejs, предназначенный для обращения к методам api из консоли, который находится в файле build/app.js
 
 
@@ -83,7 +83,7 @@ Output:
 
 ```
 
-Start CLI
+## Start CLI
 ```
 node build/cli.js -l exampleLogin -k exampleKey -u wss://example.com
 > help // Запрос доступных команд
