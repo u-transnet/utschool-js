@@ -66,7 +66,7 @@ Api.init(nodeUrl, accountName, privateKey)
 
 Получение справки
 ```
-node build/cli.js --help
+node dist/cli.js --help
 
 Output:
   Usage: cli [options]
@@ -85,7 +85,7 @@ Output:
 
 ## Start CLI
 ```
-node build/cli.js -l exampleLogin -k exampleKey -u wss://example.com
+node dist/cli.js -l exampleLogin -k exampleKey -u wss://example.com
 > help // Запрос доступных команд
 > studentApi.getLectures // Вызов команды без аргументов
 > studentApi.getLectureStats -l uts-bch-intro // Вызов команды с аргументами
