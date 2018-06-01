@@ -95,6 +95,8 @@ class StudentApi{
 
                 let lectureAccountId = cLectureAccount.get('id');
                 let studentAccountId = studentAccount.get('id');
+                let ticketTockenId = assets[0].id;
+                let proposals = cLectureAccount.get('proposals').toJS();
 
                 let assetsMap = {};
                 for(let asset of assets)
@@ -102,6 +104,7 @@ class StudentApi{
                         'id': asset.id,
                         'symbol': asset.symbol,
                         'accepted': false,
+                        'requested': false,
                         'balance': ChainStore.getAccountBalance(cLectureAccount, asset.id)
                     };
 
@@ -114,7 +117,44 @@ class StudentApi{
                             assetsMap[transferData.amount.asset_id].accepted = true;
                         }
                     }
-                    resolve(assetsMap);
+
+                    FetchChain("getObject", proposals).then((cProposals)=> {
+                        cProposals = cProposals.toJS();
+
+                        let index = -1;
+                        for (let cProposal of cProposals) {
+                            index++;
+                            if(!cProposal){
+                                console.log(`Have no information about proposal ${proposals[index]}`);
+                                continue;
+                            }
+
+                            if(Date.parse(cProposal.proposed_transaction.expiration) < new Date()/1000)
+                                continue;
+
+                            let operations = cProposal.proposed_transaction.operations;
+                            let acceptedOperation;
+                            for(let operation of operations){
+                                let operationData = operation[1];
+                                if(!operationData.amount || !operationData.from)
+                                    continue;
+
+                                if(operationData.amount.asset_id === ticketTockenId
+                                    && operationData.from === lectureAccountId
+                                    && operationData.to === studentAccountId
+                                ) {
+                                    acceptedOperation = operationData;
+                                    break;
+                                }
+                            }
+
+                            if(acceptedOperation){
+                                assetsMap[ticketTockenId].requested = true;
+                                break;
+                            }
+                        }
+                        resolve(assetsMap);
+                    }).catch(reject)
                 }).catch(reject);
             }).catch(reject);
         });

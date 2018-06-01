@@ -123,6 +123,8 @@ var StudentApi = function () {
 
                     var lectureAccountId = cLectureAccount.get('id');
                     var studentAccountId = studentAccount.get('id');
+                    var ticketTockenId = assets[0].id;
+                    var proposals = cLectureAccount.get('proposals').toJS();
 
                     var assetsMap = {};
                     var _iteratorNormalCompletion = true;
@@ -137,6 +139,7 @@ var StudentApi = function () {
                                 'id': asset.id,
                                 'symbol': asset.symbol,
                                 'accepted': false,
+                                'requested': false,
                                 'balance': _bitsharesjs.ChainStore.getAccountBalance(cLectureAccount, asset.id)
                             };
                         }
@@ -184,7 +187,81 @@ var StudentApi = function () {
                             }
                         }
 
-                        resolve(assetsMap);
+                        (0, _bitsharesjs.FetchChain)("getObject", proposals).then(function (cProposals) {
+                            cProposals = cProposals.toJS();
+
+                            var index = -1;
+                            var _iteratorNormalCompletion3 = true;
+                            var _didIteratorError3 = false;
+                            var _iteratorError3 = undefined;
+
+                            try {
+                                for (var _iterator3 = cProposals[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                                    var cProposal = _step3.value;
+
+                                    index++;
+                                    if (!cProposal) {
+                                        console.log('Have no information about proposal ' + proposals[index]);
+                                        continue;
+                                    }
+
+                                    if (Date.parse(cProposal.proposed_transaction.expiration) < new Date() / 1000) continue;
+
+                                    var _operations = cProposal.proposed_transaction.operations;
+                                    var acceptedOperation = void 0;
+                                    var _iteratorNormalCompletion4 = true;
+                                    var _didIteratorError4 = false;
+                                    var _iteratorError4 = undefined;
+
+                                    try {
+                                        for (var _iterator4 = _operations[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                                            var operation = _step4.value;
+
+                                            var operationData = operation[1];
+                                            if (!operationData.amount || !operationData.from) continue;
+
+                                            if (operationData.amount.asset_id === ticketTockenId && operationData.from === lectureAccountId && operationData.to === studentAccountId) {
+                                                acceptedOperation = operationData;
+                                                break;
+                                            }
+                                        }
+                                    } catch (err) {
+                                        _didIteratorError4 = true;
+                                        _iteratorError4 = err;
+                                    } finally {
+                                        try {
+                                            if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                                                _iterator4.return();
+                                            }
+                                        } finally {
+                                            if (_didIteratorError4) {
+                                                throw _iteratorError4;
+                                            }
+                                        }
+                                    }
+
+                                    if (acceptedOperation) {
+                                        assetsMap[ticketTockenId].requested = true;
+                                        break;
+                                    }
+                                }
+                            } catch (err) {
+                                _didIteratorError3 = true;
+                                _iteratorError3 = err;
+                            } finally {
+                                try {
+                                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                                        _iterator3.return();
+                                    }
+                                } finally {
+                                    if (_didIteratorError3) {
+                                        throw _iteratorError3;
+                                    }
+                                }
+                            }
+
+                            resolve(assetsMap);
+                        }).catch(reject);
                     }).catch(reject);
                 }).catch(reject);
             });
@@ -223,13 +300,13 @@ var StudentApi = function () {
                     cUtSchoolAsset = cUtSchoolAsset.get('id');
                     _BitsharesApiExtends.BitsharesApiExtends.fetchHistory(cUtSchoolAccount, 100, 'transfer').then(function (operations) {
                         var lecturesAccountsList = [];
-                        var _iteratorNormalCompletion3 = true;
-                        var _didIteratorError3 = false;
-                        var _iteratorError3 = undefined;
+                        var _iteratorNormalCompletion5 = true;
+                        var _didIteratorError5 = false;
+                        var _iteratorError5 = undefined;
 
                         try {
-                            for (var _iterator3 = operations[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                                var operation = _step3.value;
+                            for (var _iterator5 = operations[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                                var operation = _step5.value;
 
                                 var transferData = operation.op[1];
 
@@ -238,16 +315,16 @@ var StudentApi = function () {
                                 }
                             }
                         } catch (err) {
-                            _didIteratorError3 = true;
-                            _iteratorError3 = err;
+                            _didIteratorError5 = true;
+                            _iteratorError5 = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                                    _iterator3.return();
+                                if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                                    _iterator5.return();
                                 }
                             } finally {
-                                if (_didIteratorError3) {
-                                    throw _iteratorError3;
+                                if (_didIteratorError5) {
+                                    throw _iteratorError5;
                                 }
                             }
                         }
@@ -261,13 +338,13 @@ var StudentApi = function () {
                             lectures = lectures.toJS();
                             var teachersIds = [];
                             var index = -1;
-                            var _iteratorNormalCompletion4 = true;
-                            var _didIteratorError4 = false;
-                            var _iteratorError4 = undefined;
+                            var _iteratorNormalCompletion6 = true;
+                            var _didIteratorError6 = false;
+                            var _iteratorError6 = undefined;
 
                             try {
-                                for (var _iterator4 = lectures[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                                    var lectureData = _step4.value;
+                                for (var _iterator6 = lectures[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                                    var lectureData = _step6.value;
 
                                     index++;
                                     if (!lectureData) {
@@ -285,16 +362,16 @@ var StudentApi = function () {
                                     teachersIds.push(lectureData.active.account_auths[0][0]);
                                 }
                             } catch (err) {
-                                _didIteratorError4 = true;
-                                _iteratorError4 = err;
+                                _didIteratorError6 = true;
+                                _iteratorError6 = err;
                             } finally {
                                 try {
-                                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                                        _iterator4.return();
+                                    if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                                        _iterator6.return();
                                     }
                                 } finally {
-                                    if (_didIteratorError4) {
-                                        throw _iteratorError4;
+                                    if (_didIteratorError6) {
+                                        throw _iteratorError6;
                                     }
                                 }
                             }
@@ -303,13 +380,13 @@ var StudentApi = function () {
                                 var teachersMap = {};
                                 var index = -1;
                                 teachers = teachers.toJS();
-                                var _iteratorNormalCompletion5 = true;
-                                var _didIteratorError5 = false;
-                                var _iteratorError5 = undefined;
+                                var _iteratorNormalCompletion7 = true;
+                                var _didIteratorError7 = false;
+                                var _iteratorError7 = undefined;
 
                                 try {
-                                    for (var _iterator5 = teachers[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                                        var teacher = _step5.value;
+                                    for (var _iterator7 = teachers[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                                        var teacher = _step7.value;
 
                                         index++;
                                         if (!teacher) {
@@ -319,44 +396,44 @@ var StudentApi = function () {
                                         teachersMap[teacher.id] = teacher;
                                     }
                                 } catch (err) {
-                                    _didIteratorError5 = true;
-                                    _iteratorError5 = err;
+                                    _didIteratorError7 = true;
+                                    _iteratorError7 = err;
                                 } finally {
                                     try {
-                                        if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                                            _iterator5.return();
+                                        if (!_iteratorNormalCompletion7 && _iterator7.return) {
+                                            _iterator7.return();
                                         }
                                     } finally {
-                                        if (_didIteratorError5) {
-                                            throw _iteratorError5;
+                                        if (_didIteratorError7) {
+                                            throw _iteratorError7;
                                         }
                                     }
                                 }
 
                                 var lectureStatePromiseList = [];
-                                var _iteratorNormalCompletion6 = true;
-                                var _didIteratorError6 = false;
-                                var _iteratorError6 = undefined;
+                                var _iteratorNormalCompletion8 = true;
+                                var _didIteratorError8 = false;
+                                var _iteratorError8 = undefined;
 
                                 try {
-                                    for (var _iterator6 = lecturesList[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                                        var lecture = _step6.value;
+                                    for (var _iterator8 = lecturesList[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                                        var lecture = _step8.value;
 
                                         var teacherData = teachersMap[lecture.teacher.id];
                                         if (teacherData) lecture.teacher.name = teacherData.name;
                                         lectureStatePromiseList.push(_this3.getLectureStats(lecture.name));
                                     }
                                 } catch (err) {
-                                    _didIteratorError6 = true;
-                                    _iteratorError6 = err;
+                                    _didIteratorError8 = true;
+                                    _iteratorError8 = err;
                                 } finally {
                                     try {
-                                        if (!_iteratorNormalCompletion6 && _iterator6.return) {
-                                            _iterator6.return();
+                                        if (!_iteratorNormalCompletion8 && _iterator8.return) {
+                                            _iterator8.return();
                                         }
                                     } finally {
-                                        if (_didIteratorError6) {
-                                            throw _iteratorError6;
+                                        if (_didIteratorError8) {
+                                            throw _iteratorError8;
                                         }
                                     }
                                 }
