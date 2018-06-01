@@ -185,7 +185,7 @@ class TeacherApi{
      * }
      */
     getLectureApplications(lectureAccount){
-        return new Promise( (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             Promise.all([
                 FetchChain("getAccount", lectureAccount),
                 FetchChain("getAsset", utSchoolTokenTicket)
@@ -199,7 +199,7 @@ class TeacherApi{
                 cTicketToken = cTicketToken.get('id');
 
                 let proposals = cLectureAccount.toJS().proposals;
-                if(proposals.length == 0){
+                if(proposals.length === 0){
                     resolve([]);
                     return;
                 }
@@ -223,8 +223,11 @@ class TeacherApi{
                         let acceptedOperation;
                         for(let operation of operations){
                             let operationData = operation[1];
-                            if(operationData.amount.asset_id == cTicketToken
-                                && operationData.from == lectureAccountId
+                            if(!operationData.amount || !operationData.from)
+                                continue;
+
+                            if(operationData.amount.asset_id === cTicketToken
+                                && operationData.from === lectureAccountId
                             ) {
                                 acceptedOperation = operationData;
                                 break;
@@ -241,7 +244,7 @@ class TeacherApi{
                         });
                     }
 
-                    if(applications.length == 0){
+                    if(applications.length === 0){
                         resolve([]);
                         return;
                     }

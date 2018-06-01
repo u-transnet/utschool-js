@@ -320,7 +320,7 @@ var TeacherApi = function () {
                     cTicketToken = cTicketToken.get('id');
 
                     var proposals = cLectureAccount.toJS().proposals;
-                    if (proposals.length == 0) {
+                    if (proposals.length === 0) {
                         resolve([]);
                         return;
                     }
@@ -357,7 +357,9 @@ var TeacherApi = function () {
                                         var operation = _step8.value;
 
                                         var operationData = operation[1];
-                                        if (operationData.amount.asset_id == cTicketToken && operationData.from == lectureAccountId) {
+                                        if (!operationData.amount || !operationData.from) continue;
+
+                                        if (operationData.amount.asset_id === cTicketToken && operationData.from === lectureAccountId) {
                                             acceptedOperation = operationData;
                                             break;
                                         }
@@ -400,7 +402,7 @@ var TeacherApi = function () {
                             }
                         }
 
-                        if (applications.length == 0) {
+                        if (applications.length === 0) {
                             resolve([]);
                             return;
                         }

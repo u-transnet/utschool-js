@@ -258,8 +258,8 @@ exports.default = _Api.Api; /**
     });
     // END FILE
 
-    // BEGIN FILE ./api/Api.js
-    require.register("./api/Api.js", function (module, exports, require) {
+    // BEGIN FILE ./api\Api.js
+    require.register("./api\Api.js", function (module, exports, require) {
 
 "use strict";
 
@@ -392,8 +392,8 @@ exports.Api = Api;
     });
     // END FILE
 
-    // BEGIN FILE ./api/BitsharesApiExtends.js
-    require.register("./api/BitsharesApiExtends.js", function (module, exports, require) {
+    // BEGIN FILE ./api\BitsharesApiExtends.js
+    require.register("./api\BitsharesApiExtends.js", function (module, exports, require) {
 
 "use strict";
 
@@ -524,8 +524,8 @@ exports.BitsharesApiExtends = BitsharesApiExtends;
     });
     // END FILE
 
-    // BEGIN FILE ./api/BlockchainApi.js
-    require.register("./api/BlockchainApi.js", function (module, exports, require) {
+    // BEGIN FILE ./api\BlockchainApi.js
+    require.register("./api\BlockchainApi.js", function (module, exports, require) {
 
 "use strict";
 
@@ -570,8 +570,8 @@ exports.BlockchainApi = BlockchainApi;
     });
     // END FILE
 
-    // BEGIN FILE ./api/StudentApi.js
-    require.register("./api/StudentApi.js", function (module, exports, require) {
+    // BEGIN FILE ./api\StudentApi.js
+    require.register("./api\StudentApi.js", function (module, exports, require) {
 
 'use strict';
 
@@ -956,8 +956,8 @@ exports.StudentApi = StudentApi;
     });
     // END FILE
 
-    // BEGIN FILE ./api/TeacherApi.js
-    require.register("./api/TeacherApi.js", function (module, exports, require) {
+    // BEGIN FILE ./api\TeacherApi.js
+    require.register("./api\TeacherApi.js", function (module, exports, require) {
 
 'use strict';
 
@@ -1281,7 +1281,7 @@ var TeacherApi = function () {
                     cTicketToken = cTicketToken.get('id');
 
                     var proposals = cLectureAccount.toJS().proposals;
-                    if (proposals.length == 0) {
+                    if (proposals.length === 0) {
                         resolve([]);
                         return;
                     }
@@ -1318,7 +1318,9 @@ var TeacherApi = function () {
                                         var operation = _step8.value;
 
                                         var operationData = operation[1];
-                                        if (operationData.amount.asset_id == cTicketToken && operationData.from == lectureAccountId) {
+                                        if (!operationData.amount || !operationData.from) continue;
+
+                                        if (operationData.amount.asset_id === cTicketToken && operationData.from === lectureAccountId) {
                                             acceptedOperation = operationData;
                                             break;
                                         }
@@ -1361,7 +1363,7 @@ var TeacherApi = function () {
                             }
                         }
 
-                        if (applications.length == 0) {
+                        if (applications.length === 0) {
                             resolve([]);
                             return;
                         }
@@ -1678,8 +1680,8 @@ exports.TeacherApi = TeacherApi;
     });
     // END FILE
 
-    // BEGIN FILE ./cli/Api.js
-    require.register("./cli/Api.js", function (module, exports, require) {
+    // BEGIN FILE ./cli\Api.js
+    require.register("./cli\Api.js", function (module, exports, require) {
 
 'use strict';
 
@@ -1765,8 +1767,8 @@ exports.default = Api;
     });
     // END FILE
 
-    // BEGIN FILE ./cli/ProgramsGenerator.js
-    require.register("./cli/ProgramsGenerator.js", function (module, exports, require) {
+    // BEGIN FILE ./cli\ProgramsGenerator.js
+    require.register("./cli\ProgramsGenerator.js", function (module, exports, require) {
 
 "use strict";
 
@@ -1889,8 +1891,8 @@ exports.generatePrograms = generatePrograms;
     });
     // END FILE
 
-    // BEGIN FILE ./cli/StudentApi.js
-    require.register("./cli/StudentApi.js", function (module, exports, require) {
+    // BEGIN FILE ./cli\StudentApi.js
+    require.register("./cli\StudentApi.js", function (module, exports, require) {
 
 'use strict';
 
@@ -1944,8 +1946,8 @@ exports.default = StudentApi;
     });
     // END FILE
 
-    // BEGIN FILE ./cli/TeacherApi.js
-    require.register("./cli/TeacherApi.js", function (module, exports, require) {
+    // BEGIN FILE ./cli\TeacherApi.js
+    require.register("./cli\TeacherApi.js", function (module, exports, require) {
 
 'use strict';
 
@@ -2057,8 +2059,8 @@ exports.default = TeacherApi;
     });
     // END FILE
 
-    // BEGIN FILE ./common/Account.js
-    require.register("./common/Account.js", function (module, exports, require) {
+    // BEGIN FILE ./common\Account.js
+    require.register("./common\Account.js", function (module, exports, require) {
 
 "use strict";
 
@@ -2099,8 +2101,8 @@ exports.Account = Account;
     });
     // END FILE
 
-    // BEGIN FILE ./common/Configs.js
-    require.register("./common/Configs.js", function (module, exports, require) {
+    // BEGIN FILE ./common\Configs.js
+    require.register("./common\Configs.js", function (module, exports, require) {
 
 'use strict';
 
